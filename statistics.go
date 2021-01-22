@@ -2,11 +2,11 @@ package Ezio
 
 import (
 	"github.com/golang/glog"
+	"math"
 	"time"
 )
 
-var format =
-	"Last %f secs: QPS %f, success %d, failure %d, busy %d, AvgLatency %f ms, MinLatency %f ms, MaxLatency %f"
+var format = "Last %f secs: QPS %f, success %d, failure %d, busy %d, slow %d, AvgLatency %f ms, MinLatency %f ms, MaxLatency %f ms"
 
 func startMonitor() {
 	go monitor()
@@ -14,12 +14,10 @@ func startMonitor() {
 
 func stopMonitor() {
 	stopMonitorSignal <- struct{}{}
-	<-stopMonitorSignal
+	<-stopMonitorResponse
 }
 
 func monitor() {
-	defer close(stopMonitorSignal)
-
 	ticker := time.NewTicker(10 * time.Second).C
 
 	globalStartTime := time.Now()
@@ -35,13 +33,15 @@ func monitor() {
 
 		avgLatency := .0
 		if currentSuccess != 0 {
-			avgLatency = float64(currentLatency) / float64(currentSuccess)
+			avgLatency = currentLatency.Seconds() * 1000.0 / float64(currentSuccess)
 		}
 		globalAvgLatency := .0
-		if totalSuccess != 0{
-			globalAvgLatency = float64(totalLatency) / float64(totalSuccess)
+		if totalSuccess != 0 {
+			globalAvgLatency = totalLatency.Seconds() * 1000.0 / float64(totalSuccess)
 		}
 
+		glog.Infoln("-------------------------------------------------------------------------------" +
+			"---------------------------------------------------------------------------------")
 		glog.Infof(
 			format,
 			interval.Seconds(),
@@ -49,10 +49,11 @@ func monitor() {
 			currentSuccess,
 			currentFailure,
 			currentBusy,
+			currentSlow,
 			avgLatency,
-			currentMinLatency.Seconds() * 1000,
-			currentMaxLatency.Seconds() * 1000,
-			)
+			currentMinLatency.Seconds()*1000,
+			currentMaxLatency.Seconds()*1000,
+		)
 		glog.Infof(
 			format,
 			globalInterval.Seconds(),
@@ -60,12 +61,15 @@ func monitor() {
 			totalSuccess,
 			totalFailure,
 			totalBusy,
+			totalSlow,
 			globalAvgLatency,
-			totalMinLatency.Seconds() * 1000,
-			totalMaxLatency.Seconds() * 1000,
+			totalMinLatency.Seconds()*1000,
+			totalMaxLatency.Seconds()*1000,
 		)
+		glog.Infoln("-------------------------------------------------------------------------------" +
+			"---------------------------------------------------------------------------------")
 
-		resetCurrentLatencies()
+		resetCurrentStatistics()
 		startTime = time.Now()
 	}
 
@@ -85,11 +89,15 @@ func monitor() {
 			case busy:
 				totalBusy++
 				currentBusy++
+			case slow:
+				totalSlow++
+				currentSlow++
 			}
 		case <-ticker:
 			printStatistics()
 		case <-stopMonitorSignal:
 			printStatistics()
+			stopMonitorResponse <- struct{}{}
 			return
 		}
 	}
@@ -110,8 +118,12 @@ func updateLatencies(latency time.Duration) {
 	}
 }
 
-func resetCurrentLatencies() {
+func resetCurrentStatistics() {
 	currentLatency = 0
-	currentMinLatency = 0
-	currentMaxLatency = 0
+	currentMinLatency = math.MaxInt64
+	currentMaxLatency = math.MinInt64
+	currentSuccess = 0
+	currentFailure = 0
+	currentBusy = 0
+	currentSlow = 0
 }

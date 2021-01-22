@@ -9,10 +9,10 @@ import (
 import "github.com/golang/glog"
 
 func (w *worker) work() {
-	defer close(w.offDuty)
 	for {
 		select {
 		case <-w.offDuty:
+			w.atHome <- struct{}{}
 			return
 		case task := <-w.boss:
 			startTime := time.Now()
@@ -37,7 +37,7 @@ func (w *worker) rest() {
 }
 
 func (w *worker) ackRest() {
-	<-w.offDuty
+	<-w.atHome
 }
 
 func doTask(task *Task) error {

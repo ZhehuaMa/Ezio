@@ -13,6 +13,7 @@ type Task struct {
 type worker struct {
 	boss    <-chan *Task
 	offDuty chan struct{}
+	atHome  chan struct{}
 }
 
 type result struct {
