@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var format = "Last %f secs: QPS %f, success %d, failure %d, busy %d, slow %d, AvgLatency %f ms, MinLatency %f ms, MaxLatency %f ms"
+var format = "Last %f secs: QPS %f, success %d, failure %d, busy %d, hungry %d, AvgLatency %f ms, MinLatency %f ms, MaxLatency %f ms"
 
 func startMonitor() {
 	go monitor()
@@ -49,7 +49,7 @@ func monitor() {
 			currentSuccess,
 			currentFailure,
 			currentBusy,
-			currentSlow,
+			currentHungry,
 			avgLatency,
 			currentMinLatency.Seconds()*1000,
 			currentMaxLatency.Seconds()*1000,
@@ -61,7 +61,7 @@ func monitor() {
 			totalSuccess,
 			totalFailure,
 			totalBusy,
-			totalSlow,
+			totalHungry,
 			globalAvgLatency,
 			totalMinLatency.Seconds()*1000,
 			totalMaxLatency.Seconds()*1000,
@@ -89,9 +89,9 @@ func monitor() {
 			case busy:
 				totalBusy++
 				currentBusy++
-			case slow:
-				totalSlow++
-				currentSlow++
+			case hungry:
+				totalHungry++
+				currentHungry++
 			}
 		case <-ticker:
 			printStatistics()
@@ -125,5 +125,5 @@ func resetCurrentStatistics() {
 	currentSuccess = 0
 	currentFailure = 0
 	currentBusy = 0
-	currentSlow = 0
+	currentHungry = 0
 }

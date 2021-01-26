@@ -45,7 +45,7 @@ func schedule() {
 			}
 			sendTask(task)
 		default:
-			statisticsChan <- &result{resultType: slow}
+			statisticsChan <- &result{resultType: hungry}
 		}
 	}
 }

@@ -10,7 +10,7 @@ const (
 	success = iota
 	failure
 	busy
-	slow
+	hungry
 )
 
 var (
@@ -38,12 +38,12 @@ var (
 	totalSuccess int64 = 0
 	totalFailure int64 = 0
 	totalBusy    int64 = 0
-	totalSlow    int64 = 0
+	totalHungry  int64 = 0
 
 	currentSuccess int64 = 0
 	currentFailure int64 = 0
 	currentBusy    int64 = 0
-	currentSlow    int64 = 0
+	currentHungry  int64 = 0
 
 	totalLatency    = time.Duration(0)
 	totalMaxLatency = time.Duration(math.MinInt64)
