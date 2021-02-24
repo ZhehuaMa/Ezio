@@ -26,7 +26,7 @@ var (
 var tr = &http.Transport{
 	MaxIdleConns:        20,
 	MaxIdleConnsPerHost: 2,
-	MaxConnsPerHost:     100,
+	MaxConnsPerHost:     1000,
 	IdleConnTimeout:     10 * time.Second,
 }
 
