@@ -68,7 +68,7 @@ func initEnv() {
 	}
 
 	bufferLength = qps * 5
-	routineNumber = bufferLength
+	routineNumber = bufferLength * 10
 	queue = make(chan *Task, bufferLength)
 	dispatcher = make(chan *Task)
 	stopSignal = make(chan struct{})

@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var format = "Last %f secs: QPS %f, success %d, failure %d, busy %d, hungry %d, AvgLatency %f ms, MinLatency %f ms, MaxLatency %f ms"
+var format = "Last %.2f secs: QPS %.2f, success %d, failure %d, busy %d, hungry %d, AvgLatency %.2f ms, MinLatency %.2f ms, MaxLatency %.2f ms"
 
 func startMonitor() {
 	go monitor()
